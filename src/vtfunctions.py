@@ -25,28 +25,27 @@ def vtscan(directory) :
             url = 'https://www.virustotal.com/vtapi/v2/file/scan/upload_url'
             params = {'apikey':key}
             response = requests.get(url, params=params)
-            #print(response.json())
-            upload_url_json = response.json()
-            upload_url = upload_url_json['upload_url']
+            upload_url = response.json()['upload_url']
             
             
             files = {'file': (file_to_scan, open(file_to_scan, 'rb'))}
             response = requests.post(upload_url, files=files)
-            #print(response.json())
             
-        md5_resource_json = response.json()
-        md5_resource = md5_resource_json['md5']
+        md5_resource = response.json()['md5']
         print(md5_resource)
-        vtreport(md5_resource)
+        vtreport(md5_resource,file_to_scan)
         
 #%%
 
-def vtreport(resource):
+def vtreport(resource,file_to_scan):
 
     url = 'https://www.virustotal.com/vtapi/v2/file/report'
     params = {'apikey': key , 'resource': resource }
     response = requests.get(url, params=params)
-    print(response.json())
-    #todo: yet to extract info from response
+    result_positives = response.json()['positives']
+    if not result_positives:
+        print("No malicious software detected")
+    else:
+        print("Malicious software detected: " + file_to_scan)
 
 #%%
