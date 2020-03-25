@@ -21,7 +21,7 @@ def vtscan(directory) :
             #print(response.json())
 
         else : #in case of files larger than 32MB
-            #todo: fix JSONDecodeError: Expecting value
+            #restricted api: must contact 
             url = 'https://www.virustotal.com/vtapi/v2/file/scan/upload_url'
             params = {'apikey':key}
             response = requests.get(url, params=params)
