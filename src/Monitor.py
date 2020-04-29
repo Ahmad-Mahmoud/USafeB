@@ -21,8 +21,9 @@ def run_command(command):
     rc = process.poll()
     return rc
 
-def main():
-    run_command("tshark -i usbmon2 -V")
+def monitor(bus):
+    run_command("tshark -i usbmon"+bus+" -V")
 
-if __name__ == "__main__":
-    main()
+if __name__ == "monitor":
+    monitor()
+
