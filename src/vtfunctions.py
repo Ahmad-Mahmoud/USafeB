@@ -32,7 +32,7 @@ def vtscan(directory) :
             response = requests.post(upload_url, files=files)
             
         md5_resource = response.json()['md5']
-        print(md5_resource)
+        #print(md5_resource)
         vtreport(md5_resource,file_to_scan)
         
 #%%
@@ -44,8 +44,10 @@ def vtreport(resource,file_to_scan):
     response = requests.get(url, params=params)
     result_positives = response.json()['positives']
     if not result_positives:
-        print("No malicious software detected")
+        #print("No malicious software detected")
+        return False # not a malicious software
     else:
-        print("Malicious software detected: " + file_to_scan)
+        #print("Malicious software detected: " + file_to_scan)
+        return True # malicious software detected
 
 #%%
