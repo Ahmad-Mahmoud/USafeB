@@ -43,7 +43,7 @@ def vtreport(resource,file_to_scan):
     params = {'apikey': key , 'resource': resource }
     response = requests.get(url, params=params)
     result_positives = response.json()['positives']
-    if not result_positives:
+    if result_positives < 5: #if the positives are less than 5 then it is condemended as safe
         #print("No malicious software detected")
         return False # not a malicious software
     else:
