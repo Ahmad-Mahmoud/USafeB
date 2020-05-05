@@ -15,4 +15,5 @@ def isbinaryFiles(directory):
         print(binaryFiles)
     else:
         print("Directory not found")
+        
     return filesList, binaryFiles
