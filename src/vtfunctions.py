@@ -1,13 +1,12 @@
 import requests
-from isbinaryfiles import isbinaryFiles
+from isExecFile import isExecFile
 
 key = ''
 
 def vtscan(directory) : 
     
-    _, binaryFiles = isbinaryFiles(directory)
-    #print(binaryFiles)
-    for x in binaryFiles:
+    execFiles = isExecFile(directory)
+    for x in execFiles:
         if not x:
             continue
         file_to_scan = x[0]
@@ -32,7 +31,6 @@ def vtscan(directory) :
             response = requests.post(upload_url, files=files)
             
         md5_resource = response.json()['md5']
-        #print(md5_resource)
         vtreport(md5_resource,file_to_scan)
         
 #%%
