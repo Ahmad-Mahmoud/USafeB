@@ -3,7 +3,7 @@ import crypt
 
 from src.crypt import Device
 
-DIRECTORY = "C:\\Users\\folkloricye\\Downloads\\endeavouros-2019.12.22-x86_64.iso"
+DIRECTORY = "C:\\Users\\folkloricye\\Desktop\\desktop garbage\\AtomSetup-x64.exe"
 
 
 def main():
