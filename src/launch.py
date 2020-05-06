@@ -27,12 +27,12 @@ def get_external_data():
         port_num = extract_port_num(links)
         drive_path = dev+sd_new+'/'
         print(port_num + ' ' + drive_path)
-        return (port_num, dev+sd_new+'/')
+        return port_num, dev + sd_new + '/'
  
  
 def extract_port_num(readlink):
     # might need physical access to the pi for this one
-    port_num = re.findall("usb\d\/([^\-]*)", readlink)
+    port_num = re.findall(r"usb\d\/([^\-]*)", readlink)
     return port_num[0]
  
  
