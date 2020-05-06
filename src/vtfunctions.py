@@ -2,7 +2,6 @@ import requests
 from isExecFile import isExecFile
 
 key = ''
-reports = []
 
 def vtscan(directory) : 
     
@@ -32,9 +31,8 @@ def vtscan(directory) :
             response = requests.post(upload_url, files=files)
             
         md5_resource = response.json()['md5']
-        vtreport(md5_resource, file_to_scan)
-
-
+        vtreport(md5_resource,file_to_scan)
+        
 #%%
 
 def vtreport(resource,file_to_scan):
