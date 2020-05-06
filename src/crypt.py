@@ -3,16 +3,17 @@ import random
 import os
 import re
 import pbkdf2
-import pyaes
 
 
 # Because I needed each device to have its own key
 class Device:
     def __init__(self):
-        self.rand = ''.join(random.choice(string.ascii_letters) for i in range(10))  # Rand is a random string
+        # self.rand = ''.join(random.choice(string.ascii_letters) for i in range(32))  # Rand is a random 32-byte string
+        self.rand = "password"
         self.key = pbkdf2.crypt(self.rand)  # That is used to generate a key
-        self.aes = pyaes.AES(self.key)  # Which is used to generate an AES encryption scheme
-        self.mode = pyaes.AESModeOfOperationCTR(self.key)
+        self.key_24 = self.key[:24]
+        # self.aes = pyaes.AES(self.key_24)  # Which is used to generate an AES encryption scheme
+        # self.mode = pyaes.AESModeOfOperationCTR(self.key_24)
         self.table = open('table', 'wb')
 
     # This function will probably be called in a loop, so file_id is supposed to be it's iterator
@@ -26,9 +27,9 @@ class Device:
         file_in = open(directory)
         temp = open(filename, 'wb')
         self.table.write(filename + '\n' + directory + '\n')  # This probably needs to be decrypted too
-        pyaes.encrypt_stream(self.mode, file_in, temp)
+        # pyaes.encrypt_stream(self.mode, file_in, temp)
         file_in.close()
-        os.remove(directory)
+        # os.remove(directory)
         temp.close()
 
     # This function will also be called in a while loop, however, it will simply loop over the table
@@ -47,8 +48,10 @@ class Device:
                 decrypted = True
             file_in = open(decrypted)
             file_out = open(filename, 'wb')
-            pyaes.decrypt_stream(self.mode, decrypted, filename)
+            # pyaes.decrypt_stream(self.mode, decrypted, filename)
+            file_in.close()
+            file_out.close()
 
-    def __del__(self):
-        self.table.close()
-        os.remove('table')
+    # def __del__(self):
+    # self.table.close()
+    # os.remove('table')
