@@ -3,63 +3,52 @@ import random
 import os
 import re
 import pbkdf2
-from Crypto.PublicKey import RSA
-from Crypto.Random import *
-from Crypto.Cipher import AES
+import pyaes
 
 
-# Because I needed each device to have its own randomly generated jey key
+# Because I needed each device to have its own key
 class Device:
     def __init__(self):
-        self.key = get_random_bytes(16)
-        self.cipher = AES.new(self.key, AES.MODE_GCM)
-        self.table = open('table.bsf', 'w')  # This could use an alternative mechanism
-        self.table_path = "table.bsf"
-        self.table.close()
+        self.rand = ''.join(random.choice(string.ascii_letters) for i in range(10))  # Rand is a random string
+        self.key = pbkdf2.crypt(self.rand)  # That is used to generate a key
+        self.aes = pyaes.AES(self.key)  # Which is used to generate an AES encryption scheme
+        self.mode = pyaes.AESModeOfOperationCTR(self.key)
+        self.table = open('table', 'wb')
 
     # This function will probably be called in a loop, so file_id is supposed to be it's iterator
     # It encrypts a file into a new file then deletes the original file
     # Each device has its own table which maps the id to the original file name
     def encrypt(self, directory: string, file_id: int):
-        table = open(self.table_path, 'w')
-        matches = re.findall(r".*\\", directory)
+        matches = re.findall(".*/", directory)
         filename = matches[0]
         filename += "suppressed"
         filename += str(file_id)
-        file_in = open(directory, 'rb')
-        data = file_in.read()
+        file_in = open(directory)
         temp = open(filename, 'wb')
-        table.write(filename + '\n' + directory + '\n')  # This probably needs to be decrypted too
-        cipher_text, tag = self.cipher.encrypt_and_digest(data)
-        [temp.write(x) for x in (self.cipher.nonce, tag, cipher_text)]
+        self.table.write(filename + '\n' + directory + '\n')  # This probably needs to be decrypted too
+        pyaes.encrypt_stream(self.mode, file_in, temp)
         file_in.close()
-        # os.remove(directory)
+        os.remove(directory)
         temp.close()
 
     # This function will also be called in a while loop, however, it will simply loop over the table
     # and decrypt everything on it, deleting the encrypted files as well
     def decrypt(self):
-        files = open(self.table_path, "r")
-        data = files.read().splitlines()
-        suppressed_file = ""
+        files = self.table.readlines()
+        dec_id = ""
         filename = ""
         decrypted = True
-        for line in data:
+        for line in files:
             if decrypted:
-                suppressed_file = line
+                dec_id = line
                 decrypted = False
             else:
                 filename = line
                 decrypted = True
-            file_in = open(suppressed_file, 'rb')
-            file_out = open(filename + '2', 'wb')
-            nonce, tag, cipher_text = [file_in.read(x) for x in (16, 16, -1)]
-            cipher = AES.new(self.key, AES.MODE_GCM, nonce)
-            data = cipher.decrypt_and_verify(cipher_text, tag)
-            file_out.write(data)
-            file_in.close()
-            file_out.close()
+            file_in = open(decrypted)
+            file_out = open(filename, 'wb')
+            pyaes.decrypt_stream(self.mode, decrypted, filename)
 
-    # def __del__(self):
-    # self.table.close()
-    # os.remove('table')
+    def __del__(self):
+        self.table.close()
+        os.remove('table')
