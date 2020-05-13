@@ -30,9 +30,7 @@ def isExecFile(directory): #directory is absolute filepath of USB flash drive
         for filepath in allFiles:
             if check_sig(filepath):
                 execFiles.append((filepath, os.stat(filepath).st_size))
-    if not execFiles:
-        return False #no executable files in directory
-    else:
+    if execFiles:
         b = datetime.datetime.now()
         print("Elapsed time: ", b-a)
         return  execFiles #list of <possible> exexcutable files 
@@ -98,5 +96,4 @@ def compile_sigs():
         with open(PATH, 'rb') as f:
             signatures = Pickle.load(f)
 #%%       
-            
-x = isExecFile("/media/rania/C Drive/Users/Rania/Downloads")
+      
