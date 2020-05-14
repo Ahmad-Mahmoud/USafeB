@@ -42,24 +42,13 @@ def check_sig(filename):
     with open(filename, 'rb') as filename:
         dump = str(binascii.hexlify(filename.read(10)))[2:-1]
 
-    #result = []
     possibilities = []
-    flag = 0
     for  ext, sig in signatures:
         if dump.find(sig)==0:#if signature is found at offset 0
-                flag = 1
-                #result.append((ext, sig))
                 possibilities.append(ext)
-
-    if flag ==0:
-        #the file has unkown extension, hence suspicious
-        return True #add to list of suspected executable files to be scanned 
     
     if set(possibilities)&set(risky):
         return True
-    else:
-        return False
-    
     
  #%%%       
 def risky_sigs():#reads a csv file of list of commonly known high risk extensions
