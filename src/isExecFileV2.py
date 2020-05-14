@@ -1,38 +1,34 @@
-from urllib.request import urlopen
+
 import datetime
-import pickle as Pickle
 import csv
 import binascii
-from bs4 import BeautifulSoup
 import os
 
-
-#%%
-# the {} will be used to dynamically enter different ints with .format()
-URL = "http://www.filesignatures.net/index.php?page=all&currentpage={}"
-PATH = os.path.expanduser('./file_sigs.pickle')
-
-signatures = [] # contains all (signatures, descriptions)
-risky  = []  # contains list of risky signatures
+sigs = {}
+risky  = set()  
 
 #%%
 def isExecFile(directory): #directory is absolute filepath of USB flash drive
     allFiles = []
     execFiles = []
     if(os.path.isdir(directory)) :
+        a = datetime.datetime.now()
         for root, dirs, files in os.walk(directory, topdown=True):
             for filename in files:
                 filepath = os.path.join(root, filename)
                 allFiles.append(filepath)
+        print("#all files: ", len(allFiles))
         compile_sigs()
         risky_sigs()
-        a = datetime.datetime.now()
+        
         for filepath in allFiles:
             if check_sig(filepath):
                 execFiles.append((filepath, os.stat(filepath).st_size))
+
     if execFiles:
         b = datetime.datetime.now()
         print("Elapsed time: ", b-a)
+        print("#exec files: ", len(execFiles))
         return  execFiles #list of <possible> exexcutable files 
 
 #%%%
@@ -42,12 +38,13 @@ def check_sig(filename):
     with open(filename, 'rb') as filename:
         dump = str(binascii.hexlify(filename.read(10)))[2:-1]
 
-    possibilities = []
-    for  ext, sig in signatures:
-        if dump.find(sig)==0:#if signature is found at offset 0
-                possibilities.append(ext)
+    possibilities = set()
+    for  ext, sig in sigs.items():
+        for x in sig:
+            if dump.find(x)==0:#if signature is found at offset 0
+                    possibilities.add(ext)
     
-    if set(possibilities)&set(risky):
+    if possibilities&risky:
         return True
     
  #%%%       
@@ -56,33 +53,22 @@ def risky_sigs():#reads a csv file of list of commonly known high risk extension
     with open('risky_file_sigs.csv') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         for row in csv_reader:
-            risky.append(row[0])
-    
+            risky.add(row[0])
+
 #%%
 def compile_sigs():
-    """ Compile the list of file signatures """
-    global signatures, PATH
+    global sigs
+    with open('sig_dictionary.csv', 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            sigs[row[0]] = row[1:]
 
-    if not os.path.exists(PATH):
-        for i in range(19): # 19 pages of signatures on the site
-            response = urlopen(URL.format(i))
-            html = response.read() # get the html as a string
 
-            soup = BeautifulSoup(html, "lxml") # parse the source
-
-            t_cells = soup.find_all("td", {"width": 236}) # find td elements with width=236
-            for td in t_cells:
-                # append (signature, extension) to signatures
-                sig = str(td.get_text()).replace(' ', '').lower() # strip spaces, lowercase
-                ext = str(td.find_previous_sibling("td").get_text())
-                signatures.append((ext, sig))
-
-        # pickle the signatures
-        with open(PATH, 'wb') as f:
-            Pickle.dump(signatures, f)
-
-    else:#it should jump to this section directly if pickle file exists
-        with open(PATH, 'rb') as f:
-            signatures = Pickle.load(f)
 #%%       
-      
+#example:
+#execList = isExecFile("/media/user/Kingston")
+
+#last test: 
+#all files:  16637
+#Elapsed time:  0:00:06.491484
+#exec files:  456
