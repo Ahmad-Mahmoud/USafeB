@@ -1,14 +1,14 @@
 import os
 import crypt
 
-from src.crypt import Device
+from crypt import Device
 
-DIRECTORY = "C:\\Users\\folkloricye\\Desktop\\desktop garbage\\AtomSetup-x64.exe"
+DIRECTORY = "/mnt/8200755cbedd6f15eecd8207eba534709a01957b172d7a051b9cc4769ddbf233.bin"
 
 
 def main():
     computer = Device()
-    computer.encrypt(DIRECTORY, 1)
+    computer.encrypt(DIRECTORY, 0)
     computer.decrypt()
 
 if __name__ == '__main__':

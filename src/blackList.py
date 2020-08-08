@@ -1,17 +1,13 @@
-def BlackListCheck (serial):
-    flag = 0
+def blacklistCheck (serial):
+    #check if provided serial number is in the file
     with open("Serials.txt", 'r') as f:
         for line in f:
-            box = line
-            box = int(box)
-            if (box == serial):
-                flag = 1
-    if (flag == 0):
-        BlackListAdd(serial)
-    return True
+            if serial in line:
+                return True
+    return False
 
 
-def BlackListAdd (serial):
+def blacklistAdd (serial):
+    #add the provided serial number to the serials file
     f = open("Serials.txt", "a+")
-    f.write("%d\n" % serial)
-    return True
+    f.write("%s\n" % serial)
